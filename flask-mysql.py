@@ -3,20 +3,16 @@ import mysql.connector
 import os
 from dotenv import load_dotenv
 
-# Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24).hex()
 
-# Load environment variables from .env file
 load_dotenv()
 
-# MySQL database configuration
 DB_HOST = os.getenv("DB_HOST")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_DATABASE = os.getenv("DB_DATABASE")
 
-# Function to create MySQL connection
 def create_connection():
     conn = mysql.connector.connect(
         host=DB_HOST,
@@ -26,14 +22,12 @@ def create_connection():
     )
     return conn
 
-# Function to create database if not exists
 def create_database():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute("CREATE DATABASE IF NOT EXISTS test_db")
     conn.close()
 
-# Function to create users table if not exists
 def create_table():
     conn = create_connection()
     cursor = conn.cursor()
@@ -47,11 +41,9 @@ def create_table():
     conn.commit()
     conn.close()
 
-# Route for index page
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # Process the form submission
         reg_number = request.form['reg_number']
         name = request.form['name']
         age = request.form['age']
@@ -66,11 +58,9 @@ def index():
         flash('Data saved successfully', 'success')
         return redirect(url_for('index', message='Data saved successfully'))
     else:
-        # Render the index template
         message = request.args.get('message')
         return render_template('index.html', message=message)
 
-# Route for displaying all users
 @app.route('/display')
 def display():
     conn = create_connection()
@@ -81,7 +71,6 @@ def display():
     
     return render_template('display.html', data=data)
 
-# Route for searching a user by registration number
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method == 'POST':
@@ -100,7 +89,6 @@ def search():
     else:
         return render_template('search.html')
 
-# Route for updating user information
 @app.route('/update', methods=['GET', 'POST'])
 def update():
     if request.method == 'POST':
@@ -120,7 +108,6 @@ def update():
     else:
         return render_template('update.html')
 
-# Route for deleting a user
 @app.route('/delete', methods=['GET', 'POST'])
 def delete():
     if request.method == 'POST':
@@ -143,7 +130,6 @@ def delete():
     else:
         return render_template('delete.html')
 
-# Main block to run the application
 if __name__ == '__main__':
     create_database() 
     create_table()
