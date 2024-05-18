@@ -9,7 +9,8 @@ def create_connection():
     conn = sqlite3.connect('data.db')
     return conn
 
-def create_table(conn):
+def create_table():
+    conn = create_connection()
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY,
@@ -19,37 +20,7 @@ def create_table(conn):
                     address TEXT
                     )''')
     conn.commit()
-
-def migrate_data(conn):
-    cursor = conn.cursor()
-    
-    # Check if the new table already exists to avoid re-creating it
-    cursor.execute("PRAGMA table_info(users)")
-    columns = [column[1] for column in cursor.fetchall()]
-    
-    if 'age' not in columns or 'address' not in columns:
-        # Create the new table with the correct schema
-        cursor.execute('''CREATE TABLE IF NOT EXISTS users_new (
-                        id INTEGER PRIMARY KEY,
-                        reg_number TEXT,
-                        name TEXT,
-                        age TEXT,
-                        address TEXT
-                        )''')
-        conn.commit()
-        
-        # Copy data from the old table to the new table
-        cursor.execute('''INSERT INTO users_new (id, reg_number, name)
-                          SELECT id, reg_number, name FROM users''')
-        conn.commit()
-        
-        # Drop the old table
-        cursor.execute("DROP TABLE users")
-        conn.commit()
-        
-        # Rename the new table to the original table name
-        cursor.execute("ALTER TABLE users_new RENAME TO users")
-        conn.commit()
+    conn.close()
 
 @app.route('/')
 def index():
@@ -142,8 +113,5 @@ def delete():
         return render_template('delete.html')
 
 if __name__ == '__main__':
-    conn = create_connection()
-    create_table(conn)
-    migrate_data(conn)
-    conn.close()
+    create_table() 
     app.run(debug=True)
