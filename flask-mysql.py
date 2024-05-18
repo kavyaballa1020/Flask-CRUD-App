@@ -66,7 +66,6 @@ def index():
         message = request.args.get('message')
         return render_template('index.html', message=message)
 
-# Rest of your routes and code...
 
 if __name__ == '__main__':
     create_database()

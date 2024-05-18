@@ -44,7 +44,56 @@ def display():
     
     return render_template('display.html', data=data)
 
-# Implement other routes similarly
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        reg_number = request.form['reg_number']
+        
+        db = create_connection()
+        users_collection = db.users
+        result = users_collection.find_one({'reg_number': reg_number})
+        
+        if result:
+            return render_template('display.html', data=[result])
+        else:
+            return render_template('search.html', message='Data not found', reg_number=reg_number)
+    else:
+        return render_template('search.html')
+
+@app.route('/update', methods=['GET', 'POST'])
+def update():
+    if request.method == 'POST':
+        reg_number = request.form['reg_number']
+        name = request.form['name']
+        age = request.form['age']
+        address = request.form['address']
+        
+        db = create_connection()
+        users_collection = db.users
+        users_collection.update_one({'reg_number': reg_number}, {'$set': {'name': name, 'age': age, 'address': address}})
+        
+        flash('Data updated successfully', 'success')
+        return redirect(url_for('index', message='Data updated successfully'))
+    else:
+        return render_template('update.html')
+
+@app.route('/delete', methods=['GET', 'POST'])
+def delete():
+    if request.method == 'POST':
+        reg_number = request.form['reg_number']
+        
+        db = create_connection()
+        users_collection = db.users
+        result = users_collection.delete_one({'reg_number': reg_number})
+        
+        if result.deleted_count:
+            flash('Data deleted successfully', 'success')
+        else:
+            flash('Data not found', 'error')
+        
+        return render_template('delete.html', message='Data deleted successfully' if result.deleted_count else 'Data not found')
+    else:
+        return render_template('delete.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
