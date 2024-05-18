@@ -13,7 +13,7 @@ def create_table():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-                    id INTEGER PRIMARY KEY,
+                    id INTEGER PRIMARY ,
                     reg_number TEXT,
                     name TEXT,
                     age TEXT,
