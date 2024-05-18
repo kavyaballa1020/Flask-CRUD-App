@@ -1,16 +1,26 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import mysql.connector
 import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24).hex()
 
+# Load environment variables from .env file
+load_dotenv()
+
+# MySQL database configuration
+DB_HOST = os.getenv("DB_HOST")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_DATABASE = os.getenv("DB_DATABASE")
+
 def create_connection():
     conn = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="Nanna143@SQL",
-        database="test_db"  # Specify the database name here
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_DATABASE
     )
     return conn
 
