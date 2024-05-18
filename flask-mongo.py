@@ -56,9 +56,11 @@ def search():
         if result:
             return render_template('display.html', data=[result])
         else:
-            return render_template('search.html', message='Data not found', reg_number=reg_number)
+            flash('Data not found', 'error')
+            return redirect(url_for('index'))
     else:
         return render_template('search.html')
+
 
 @app.route('/update', methods=['GET', 'POST'])
 def update():
