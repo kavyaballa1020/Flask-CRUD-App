@@ -14,8 +14,42 @@ def create_table(conn):
     cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY,
                     reg_number TEXT,
-                    name TEXT)''')
+                    name TEXT,
+                    age TEXT,
+                    address TEXT
+                    )''')
     conn.commit()
+
+def migrate_data(conn):
+    cursor = conn.cursor()
+    
+    # Check if the new table already exists to avoid re-creating it
+    cursor.execute("PRAGMA table_info(users)")
+    columns = [column[1] for column in cursor.fetchall()]
+    
+    if 'age' not in columns or 'address' not in columns:
+        # Create the new table with the correct schema
+        cursor.execute('''CREATE TABLE IF NOT EXISTS users_new (
+                        id INTEGER PRIMARY KEY,
+                        reg_number TEXT,
+                        name TEXT,
+                        age TEXT,
+                        address TEXT
+                        )''')
+        conn.commit()
+        
+        # Copy data from the old table to the new table
+        cursor.execute('''INSERT INTO users_new (id, reg_number, name)
+                          SELECT id, reg_number, name FROM users''')
+        conn.commit()
+        
+        # Drop the old table
+        cursor.execute("DROP TABLE users")
+        conn.commit()
+        
+        # Rename the new table to the original table name
+        cursor.execute("ALTER TABLE users_new RENAME TO users")
+        conn.commit()
 
 @app.route('/')
 def index():
@@ -24,18 +58,19 @@ def index():
 
 @app.route('/', methods=['POST'])
 def insert():
-    if request.method == 'POST':
-        reg_number = request.form['reg_number']
-        name = request.form['name']
-        
-        conn = create_connection()
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (reg_number, name) VALUES (?, ?)", (reg_number, name))
-        conn.commit()
-        conn.close()
-        
-        flash('Data saved successfully', 'success')
-        return redirect(url_for('index', message='Data saved successfully'))
+    reg_number = request.form['reg_number']
+    name = request.form['name']
+    age = request.form['age']
+    address = request.form['address']
+    
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO users (reg_number, name, age, address) VALUES (?, ?, ?, ?)", (reg_number, name, age, address))
+    conn.commit()
+    conn.close()
+    
+    flash('Data saved successfully', 'success')
+    return redirect(url_for('index', message='Data saved successfully'))
 
 @app.route('/display')
 def display():
@@ -65,16 +100,17 @@ def search():
     else:
         return render_template('search.html')
 
-
 @app.route('/update', methods=['GET', 'POST'])
 def update():
     if request.method == 'POST':
         reg_number = request.form['reg_number']
         name = request.form['name']
+        age = request.form['age']
+        address = request.form['address']
         
         conn = create_connection()
         cursor = conn.cursor()
-        cursor.execute("UPDATE users SET name=? WHERE reg_number=?", (name, reg_number))
+        cursor.execute("UPDATE users SET name=?, age=?, address=? WHERE reg_number=?", (name, age, address, reg_number))
         conn.commit()
         conn.close()
         
@@ -96,16 +132,18 @@ def delete():
         if result:
             cursor.execute("DELETE FROM users WHERE reg_number=?", (reg_number,))
             conn.commit()
-            conn.close()
             flash('Data deleted successfully', 'success')
-            return render_template('delete.html', message='Data deleted successfully')
         else:
-            conn.close()
             flash('Data not found', 'error')
-            return render_template('delete.html', message='Data not found')
+        
+        conn.close()
+        return render_template('delete.html', message='Data deleted successfully' if result else 'Data not found')
     else:
         return render_template('delete.html')
 
 if __name__ == '__main__':
-    create_table(create_connection()) 
+    conn = create_connection()
+    create_table(conn)
+    migrate_data(conn)
+    conn.close()
     app.run(debug=True)
