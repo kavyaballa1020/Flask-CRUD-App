@@ -6,10 +6,8 @@ from dotenv import load_dotenv
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24).hex()
 
-# Load environment variables from .env file
 load_dotenv()
 
-# MongoDB Atlas connection URI
 MONGODB_URI = os.getenv('MONGODB_URI')
 
 def create_connection():
