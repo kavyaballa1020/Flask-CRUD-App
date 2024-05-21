@@ -1,14 +1,14 @@
 import sqlite3
 import csv
 
-conn = sqlite3.connect('database.db')
+conn = sqlite3.connect('data.db')
 cursor = conn.cursor()
 
 cursor.execute("SELECT * FROM CUTM")
 
 rows = cursor.fetchall()
 
-csv_filename = 'cutm_data.csv'
+csv_filename = 'data.csv'
 
 with open(csv_filename, 'w', newline='') as csvfile:
     csv_writer = csv.writer(csvfile)
