@@ -4,7 +4,7 @@ import csv
 conn = sqlite3.connect('data.db')
 cursor = conn.cursor()
 
-cursor.execute("SELECT * FROM CUTM")
+cursor.execute("SELECT * FROM users")
 
 rows = cursor.fetchall()
 
