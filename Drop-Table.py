@@ -1,5 +1,4 @@
 import sqlite3
-
 def list_tables():
     conn = sqlite3.connect('data.db')
     cur = conn.cursor()
