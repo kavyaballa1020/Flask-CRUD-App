@@ -1,8 +1,9 @@
 import pandas as pd
 import sqlite3
+import os
 
 # Define the file and database names
-file_path = 'data1.xlsx'
+file_path = os.path.join('Files', 'data.xlsx')
 db_name = 'data.db'
 
 # Connect to the SQLite database
@@ -23,7 +24,7 @@ for sheet_name in xl.sheet_names:
 combined_df = pd.concat(dfs, ignore_index=True)
 
 # Save the combined DataFrame to the SQLite database
-combined_df.to_sql('CUTM', conn, if_exists='replace', index=False)
+combined_df.to_sql('users', conn, if_exists='replace', index=False)
 
 # Close the database connection
 conn.close()
