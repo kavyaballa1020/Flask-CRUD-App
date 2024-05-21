@@ -3,7 +3,7 @@ import sqlite3
 
 # Define the file and database names
 file_path = 'data1.xlsx'
-db_name = 'xlsx.db'
+db_name = 'data.db'
 
 # Connect to the SQLite database
 conn = sqlite3.connect(db_name)
