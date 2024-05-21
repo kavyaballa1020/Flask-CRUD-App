@@ -33,7 +33,7 @@ def insert():
     name = request.form['name']
     age = request.form['age']
     address = request.form['address']
-    
+
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute("INSERT INTO users (reg_number, name, age, address) VALUES (?, ?, ?, ?)", (reg_number, name, age, address))
